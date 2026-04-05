@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Big Billion Day — Flash Sale System</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#E8450A;--brand-dk:#B5320A;--brand-lt:#FF6B35;
+  --bg:#0D0D0F;--bg2:#141417;--bg3:#1C1C21;--bg4:#242428;
+  --border:#2A2A30;--border2:#333340;
+  --text:#F0EDE8;--text2:#A8A5A0;--text3:#656270;
+  --green:#3DDC84;--green-bg:#0D2B1A;--green-border:#1E5C35;
+  --red:#FF4D4D;--red-bg:#2B0D0D;--red-border:#5C1E1E;
+  --blue:#4DA6FF;--blue-bg:#0D1E2B;--blue-border:#1E3D5C;
+  --amber:#FFAA2A;--amber-bg:#2B1E0D;--amber-border:#5C3D1E;
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);font-size:13px;overflow-x:hidden}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,#1A0A04 0%,#2D1005 40%,#1A0A04 100%);border-bottom:1px solid var(--border2);padding:0 28px;display:flex;justify-content:space-between;align-items:center;height:64px;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.logo-badge{width:38px;height:38px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.brand-title{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.brand-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.live-badge{display:flex;align-items:center;gap:6px;background:#1A0805;border:1px solid var(--brand);border-radius:20px;padding:4px 13px;font-size:11px;font-weight:700;color:var(--brand-lt);letter-spacing:0.5px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--brand-lt);animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+.countdown{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--text);letter-spacing:3px;font-variant-numeric:tabular-nums}
+
+/* NAV */
+.nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;gap:2px}
+.nav-btn{padding:13px 20px;font-size:12px;font-weight:600;border:none;background:transparent;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;font-family:'Sora',sans-serif;letter-spacing:0.2px}
+.nav-btn:hover{color:var(--text2)}
+.nav-btn.active{color:var(--brand-lt);border-bottom:2px solid var(--brand)}
+
+/* TABS */
+.tab{display:none;padding:24px 28px}
+.tab.active{display:block}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.mc.mc-o::before{background:linear-gradient(90deg,var(--brand),var(--brand-lt))}
+.mc.mc-g::before{background:linear-gradient(90deg,#1E5C35,var(--green))}
+.mc.mc-b::before{background:linear-gradient(90deg,#1E3D5C,var(--blue))}
+.mc.mc-r::before{background:linear-gradient(90deg,#5C1E1E,var(--red))}
+.mc-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;font-weight:600}
+.mc-val{font-size:30px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-1px}
+.c-o{color:var(--brand-lt)}.c-g{color:var(--green)}.c-b{color:var(--blue)}.c-r{color:var(--red)}
+
+/* LAYOUT */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+
+/* PANEL */
+.panel{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg2)}
+.ph{padding:12px 16px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--text2);letter-spacing:0.3px}
+.pb{padding:16px}
+
+/* FORM */
+label{display:block;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px;font-weight:600}
+input,select{width:100%;padding:9px 12px;font-size:13px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);outline:none;margin-bottom:12px;font-family:'Sora',sans-serif;transition:border-color 0.15s}
+input:focus,select:focus{border-color:var(--brand)}
+select option{background:var(--bg3)}
+
+/* BUTTONS */
+.btn{width:100%;padding:10px 14px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;border:none;margin-top:4px;transition:all 0.15s;font-family:'Sora',sans-serif;letter-spacing:0.3px}
+.btn-p{background:var(--brand);color:#fff}.btn-p:hover{background:var(--brand-dk);transform:translateY(-1px)}
+.btn-s{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}.btn-s:hover{background:var(--bg4)}
+.btn-b{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}.btn-b:hover{background:#122b3d}
+
+/* RESULT BOX */
+.rbox{margin-top:10px;padding:10px 13px;border-radius:8px;font-size:12px;line-height:1.7;display:none;font-family:'JetBrains Mono',monospace;white-space:pre-wrap}
+.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.fail{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+
+/* LOG */
+.log-list{list-style:none;max-height:240px;overflow-y:auto}
+.log-list::-webkit-scrollbar{width:4px}.log-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.log-item:last-child{border-bottom:none}
+.badge{font-size:10px;padding:2px 9px;border-radius:6px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.bg{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.br{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+
+/* STOCK BAR */
+.stock-wrap{background:var(--bg);border-radius:4px;height:8px;margin:4px 0 12px;overflow:hidden}
+.stock-bar{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--brand),var(--brand-lt));transition:width 0.5s cubic-bezier(0.4,0,0.2,1)}
+
+/* TESTS */
+.test-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px}
+.test-row:last-child{border-bottom:none}
+.ts{font-size:10px;padding:3px 9px;border-radius:6px;font-weight:700;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.ts-pass{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.ts-pend{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.ts-run{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);animation:pr 0.8s ease-in-out infinite}
+@keyframes pr{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* CI/CD */
+.cicd-step{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.cicd-step:last-child{border-bottom:none}
+.step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;border:2px solid}
+.s-o{background:var(--brand);border-color:var(--brand-lt);color:#fff}
+.s-b{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.s-a{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.s-g{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.step-label{font-size:13px;font-weight:600;color:var(--text)}
+.step-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* PODS */
+.pods-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.k8s-pod{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:8px;border:1px solid var(--border2);font-size:11px;background:var(--bg3);font-family:'JetBrains Mono',monospace;transition:all 0.3s}
+.k8s-pod.updating{border-color:var(--amber);background:var(--amber-bg)}
+.k8s-pod.done{border-color:var(--green);background:var(--green-bg)}
+.pod-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.pod-dot.pulse{animation:pd 1.2s ease-in-out infinite}
+.pod-dot.amber{background:var(--amber);animation:pd 0.5s ease-in-out infinite}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.6)}}
+
+/* PROGRESS */
+.prog-wrap{background:var(--bg);border-radius:5px;height:6px;overflow:hidden}
+.prog-bar{height:6px;background:linear-gradient(90deg,var(--brand),var(--brand-lt));border-radius:5px;transition:width 0.4s ease}
+
+/* MONO */
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px;background:#0A0A0C;color:#C9C4BE;border-radius:10px;padding:14px 16px;line-height:2;border:1px solid var(--border);white-space:pre;overflow-x:auto}
+.mono .c{color:#4B7A4B}.mono .k{color:#5B9BD5}.mono .s{color:#CE9178}.mono .g{color:var(--green)}
+code{font-size:11px;background:var(--bg3);padding:2px 7px;border-radius:5px;font-family:'JetBrains Mono',monospace;color:var(--brand-lt);border:1px solid var(--border2)}
+
+/* TABLES */
+.info-table{width:100%;border-collapse:collapse;font-size:12px}
+.info-table td{padding:9px 0;border-bottom:1px solid var(--border)}
+.info-table tr:last-child td{border-bottom:none}
+.info-table td:first-child{color:var(--text3);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
+.info-table td:last-child{text-align:right;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px}
+
+.chip-o{display:inline-flex;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;background:#2B1505;color:var(--brand-lt);border:1px solid #5C2D10}
+.stitle{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-badge">₹</div>
+    <div>
+      <div class="brand-title">Big Billion Day — Flash Sale System</div>
+      <div class="brand-sub">Spring Boot · JUnit · Jenkins · Docker · Kubernetes</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><span class="live-dot"></span>LIVE SALE</div>
+    <div class="countdown" id="timer">02:45:00</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showTab('sale',this)">Flash Sale Logic</button>
+  <button class="nav-btn" onclick="showTab('tests',this)">JUnit Tests</button>
+  <button class="nav-btn" onclick="showTab('cicd',this)">Jenkins CI/CD</button>
+  <button class="nav-btn" onclick="showTab('docker',this)">Docker</button>
+  <button class="nav-btn" onclick="showTab('k8s',this)">Kubernetes</button>
+</div>
+
+<!-- ══ TAB 1: FLASH SALE ══ -->
+<div id="tab-sale" class="tab active">
+  <div class="metrics">
+    <div class="mc mc-o"><div class="mc-label">Orders Placed</div><div class="mc-val c-o" id="m-orders">0</div></div>
+    <div class="mc mc-g"><div class="mc-label">Revenue</div><div class="mc-val c-g" id="m-rev">₹0</div></div>
+    <div class="mc mc-b"><div class="mc-label">Stock Left</div><div class="mc-val c-b" id="m-stock">10</div></div>
+    <div class="mc mc-r"><div class="mc-label">Rejected Orders</div><div class="mc-val c-r" id="m-fail">0</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <div class="ph">📦 Active Product — Flash Deal</div>
+      <div class="pb">
+        <div style="font-size:16px;font-weight:800;margin-bottom:2px;letter-spacing:-0.5px">Samsung 55" 4K Smart TV</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:14px">Electronics · Product ID: <code>1</code> · Big Billion Day Deal</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="color:var(--text3);text-decoration:line-through;font-size:12px">₹50,000 original</span>
+          <span style="font-weight:800;color:var(--brand-lt);font-size:16px">₹25,000 <span class="chip-o">50% OFF</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px">
+          <span>Stock availability</span>
+          <span id="stk-lbl" style="color:var(--text);font-weight:700;font-family:'JetBrains Mono',monospace">10 / 10 units</span>
+        </div>
+        <div class="stock-wrap"><div class="stock-bar" id="stk-bar" style="width:100%"></div></div>
+        <div style="padding:9px 12px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;font-size:11px;margin-bottom:12px">
+          <span style="color:var(--green);font-weight:700">✓ Sale Active</span>
+          <span style="color:var(--text3);margin-left:8px">Jan 1 – Dec 31 2026</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3)">API: <code>GET /api/flash-sale/product/1</code></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">H2 Console: <code>http://localhost:8081/h2-console</code></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">🛒 Place Order — Pricing & Stock Validation</div>
+      <div class="pb">
+        <label>User ID</label>
+        <input type="text" id="uid" value="user1">
+        <label>Quantity</label>
+        <input type="number" id="qty" value="1" min="1" max="10">
+        <label>Test Scenario</label>
+        <select id="scenario">
+          <option value="normal">Normal order (happy path)</option>
+          <option value="exceed">Exceed available stock</option>
+          <option value="expired">Expired sale window</option>
+          <option value="concurrent">High-demand — 10 simultaneous users</option>
+        </select>
+        <button class="btn btn-p" onclick="placeOrder()">Place Order →</button>
+        <button class="btn btn-s" style="margin-top:6px" onclick="resetSale()">↺ Reset stock to 10</button>
+        <div class="rbox" id="rbox"></div>
+      </div>
+    </div>
+
+    <div class="panel full">
+      <div class="ph">📋 Order Log — Real-time Transaction Record</div>
+      <div class="pb">
+        <ul class="log-list" id="log">
+          <li class="log-item" data-empty style="color:var(--text3)">No transactions yet — place an order above.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel full">
+      <div class="ph">⚙️ FlashSaleService.java — Core Business Logic</div>
+      <div class="pb">
+        <div class="mono"><span class="c">// synchronized prevents overselling during Big Billion Day concurrent load</span>
+<span class="k">@Service</span>
+<span class="k">public class</span> FlashSaleService {
+
+    <span class="k">public synchronized</span> OrderResponse placeOrder(OrderRequest req) {
+        Product product = productRepo.findById(req.getProductId())
+            .orElseThrow(() -> <span class="k">new</span> RuntimeException(<span class="s">"Product not found"</span>));
+
+        <span class="c">// Validate 1: is sale window active?</span>
+        <span class="k">if</span> (!product.getFlashSale().isActive())
+            <span class="k">return new</span> OrderResponse(<span class="s">"FAILED"</span>, <span class="s">"Sale not active or expired"</span>);
+
+        <span class="c">// Validate 2: sufficient stock?</span>
+        <span class="k">if</span> (product.getStock() < req.getQuantity())
+            <span class="k">return new</span> OrderResponse(<span class="s">"FAILED"</span>, <span class="s">"Insufficient stock"</span>);
+
+        <span class="c">// Deduct stock & charge sale price (not original ₹50,000)</span>
+        product.setStock(product.getStock() - req.getQuantity());
+        <span class="k">double</span> total = product.getFlashSale().getSalePrice() * req.getQuantity();
+        orderRepo.save(<span class="k">new</span> Order(req.getUserId(), product, total));
+        productRepo.save(product);
+        <span class="k">return new</span> OrderResponse(<span class="s">"SUCCESS"</span>, <span class="s">"Total: ₹"</span> + total);
+    }
+}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB 2: JUNIT TESTS ══ -->
+<div id="tab-tests" class="tab">
+  <div class="grid2">
+    <div class="panel full">
+      <div class="ph">🧪 FlashSaleServiceTest.java — 6 High-Demand Test Scenarios</div>
+      <div class="pb">
+        <div id="test-rows">
+          <div class="test-row"><div style="flex:1"><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px">testSuccessfulOrder()</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Happy path · correct sale price charged · stock deducted</div></div><span class="ts ts-pend" id="t0">PENDING</span></div>
+          <div class="test-row"><div style="flex:1"><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px">testOutOfStock()</div><div style="font-size:11px;color:var(--text3);margin-top:2px">6th user fails after 5 units sold · error message verified</div></div><span class="ts ts-pend" id="t1">PENDING</span></div>
+          <div class="test-row"><div style="flex:1"><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px">testInactiveSale()</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Expired time window rejected · FAILED status returned</div></div><span class="ts ts-pend" id="t2">PENDING</span></div>
+          <div class="test-row"><div style="flex:1"><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px">testCorrectSalePriceApplied()</div><div style="font-size:11px;color:var(--text3);margin-top:2px">₹25,000 not ₹50,000 · 2 units = ₹50,000 total verified</div></div><span class="ts ts-pend" id="t3">PENDING</span></div>
+          <div class="test-row"><div style="flex:1"><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px">testConcurrentHighDemand()</div><div style="font-size:11px;color:var(--text3);margin-top:2px">20 threads fire simultaneously · only 5 succeed · no overselling</div></div><span class="ts ts-pend" id="t4">PENDING</span></div>
+          <div class="test-row"><div style="flex:1"><div style="font-weight:700;font-family:'JetBrains Mono',monospace;font-size:12px">testProductNotFound()</div><div style="font-size:11px;color:var(--text3);margin-top:2px">ID 9999 throws RuntimeException · handled gracefully</div></div><span class="ts ts-pend" id="t5">PENDING</span></div>
+        </div>
+        <div style="margin-top:16px;display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:6px">
+          <span id="t-summary">Click "Run All Tests" to simulate <code>mvn test</code></span>
+          <span id="t-count" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)">0 / 6 passed</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" id="t-bar" style="width:0%"></div></div>
+        <button class="btn btn-p" style="margin-top:14px" onclick="runTests()">▶ Run All Tests (mvn test)</button>
+        <div class="rbox" id="t-rbox"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">⚡ Concurrent High-Demand — Big Billion Day Scenario</div>
+      <div class="pb" style="font-size:12px;line-height:1.9;color:var(--text2)">
+        Simulates <strong style="color:var(--brand-lt)">Big Billion Day</strong>: 20 users hit the API simultaneously.<br><br>
+        Uses <code>ExecutorService</code> with <code>newFixedThreadPool(20)</code>.<br><br>
+        The <code>synchronized</code> keyword on <code>placeOrder()</code> ensures only one thread modifies stock at a time — no race conditions.<br><br>
+        <strong style="color:var(--green)">Result:</strong> Exactly 5 orders succeed (stock=5). Zero overselling.<br><br>
+        <code>assertEquals(5, successCount)</code>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">💻 Run Command</div>
+      <div class="pb">
+        <div class="mono"><span class="c"># Run from project root</span>
+cd flash-sale-system
+mvn test
+
+<span class="c"># Expected output:</span>
+<span class="g">Tests run: 6, Failures: 0</span>
+<span class="g">Errors: 0, Skipped: 0</span>
+<span class="g">BUILD SUCCESS</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB 3: JENKINS CI/CD ══ -->
+<div id="tab-cicd" class="tab">
+  <div class="grid2">
+    <div class="panel">
+      <div class="ph">🔧 Jenkins Pipeline — 5 Stages</div>
+      <div class="pb">
+        <div class="cicd-step">
+          <div class="step-circle s-o">1</div>
+          <div style="flex:1"><div class="step-label">Clone Repository</div><div class="step-sub">git branch: main · GitHub repo</div></div>
+          <span class="ts ts-pend" id="cs0">WAITING</span>
+        </div>
+        <div class="cicd-step">
+          <div class="step-circle s-b">2</div>
+          <div style="flex:1"><div class="step-label">Build with Maven</div><div class="step-sub">mvn clean package → generates .jar</div></div>
+          <span class="ts ts-pend" id="cs1">WAITING</span>
+        </div>
+        <div class="cicd-step">
+          <div class="step-circle s-a">3</div>
+          <div style="flex:1"><div class="step-label">Build Docker Image</div><div class="step-sub">docker build -t yourusername/java-app:latest .</div></div>
+          <span class="ts ts-pend" id="cs2">WAITING</span>
+        </div>
+        <div class="cicd-step">
+          <div class="step-circle s-b">4</div>
+          <div style="flex:1"><div class="step-label">Push to DockerHub</div><div class="step-sub">withCredentials(dockerhub-creds) → docker push</div></div>
+          <span class="ts ts-pend" id="cs3">WAITING</span>
+        </div>
+        <div class="cicd-step">
+          <div class="step-circle s-g">5</div>
+          <div style="flex:1"><div class="step-label">Deploy to Kubernetes</div><div class="step-sub">kubectl apply -f deployment.yaml</div></div>
+          <span class="ts ts-pend" id="cs4">WAITING</span>
+        </div>
+        <div style="margin-top:14px;display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:6px">
+          <span id="pipe-label">Click trigger to start pipeline</span>
+          <span id="pipe-pct" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)">0%</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" id="pipe-bar" style="width:0%"></div></div>
+        <button class="btn btn-p" style="margin-top:12px" onclick="runPipeline()">▶ Trigger Pipeline (Build Now)</button>
+        <button class="btn btn-s" style="margin-top:6px" onclick="resetPipeline()">↺ Reset</button>
+        <div class="rbox" id="pipe-rbox"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">📟 Live Console Output</div>
+      <div class="pb">
+        <div class="mono" id="pipe-log" style="min-height:370px;font-size:10.5px;line-height:1.8">Waiting for pipeline trigger...</div>
+      </div>
+    </div>
+
+    <div class="panel full">
+      <div class="ph">📝 Jenkinsfile — Pipeline Script</div>
+      <div class="pb">
+        <div class="mono"><span class="k">pipeline</span> {
+    <span class="k">agent</span> any
+    <span class="k">environment</span> {
+        DOCKER_IMAGE = <span class="s">"yourdockerhubusername/java-app:latest"</span>
+    }
+    <span class="k">stages</span> {
+        <span class="k">stage</span>(<span class="s">'Clone Repository'</span>) {
+            <span class="k">steps</span> { git branch: <span class="s">'main'</span>, url: <span class="s">'https://github.com/your-repo/flash-sale-system.git'</span> }
+        }
+        <span class="k">stage</span>(<span class="s">'Build with Maven'</span>) {
+            <span class="k">steps</span> { bat <span class="s">'mvn clean package'</span> }
+        }
+        <span class="k">stage</span>(<span class="s">'Build Docker Image'</span>) {
+            <span class="k">steps</span> { bat <span class="s">"docker build -t %DOCKER_IMAGE% ."</span> }
+        }
+        <span class="k">stage</span>(<span class="s">'Push to DockerHub'</span>) {
+            <span class="k">steps</span> {
+                withCredentials([usernamePassword(credentialsId: <span class="s">'dockerhub-creds'</span>,
+                    usernameVariable: <span class="s">'DOCKER_USER'</span>, passwordVariable: <span class="s">'DOCKER_PASS'</span>)]) {
+                    bat <span class="s">"docker login -u %DOCKER_USER% -p %DOCKER_PASS%"</span>
+                    bat <span class="s">"docker push %DOCKER_IMAGE%"</span>
+                }
+            }
+        }
+        <span class="k">stage</span>(<span class="s">'Deploy to Kubernetes'</span>) {
+            <span class="k">steps</span> { bat <span class="s">'kubectl apply -f deployment.yaml'</span> }
+        }
+    }
+    <span class="k">post</span> {
+        success { echo <span class="s">'CI/CD Pipeline executed successfully!'</span> }
+        failure { echo <span class="s">'Pipeline failed. Please check logs.'</span> }
+    }
+}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB 4: DOCKER ══ -->
+<div id="tab-docker" class="tab">
+  <div class="grid2">
+    <div class="panel">
+      <div class="ph">🐳 Dockerfile</div>
+      <div class="pb">
+        <div class="mono"><span class="c"># flash-sale-system/Dockerfile</span>
+FROM eclipse-temurin:17-jdk
+
+WORKDIR /app
+
+COPY target/simple-java-app-1.0.jar app.jar
+
+CMD [<span class="s">"java"</span>, <span class="s">"-jar"</span>, <span class="s">"app.jar"</span>]</div>
+        <div style="margin-top:14px">
+          <div class="stitle">Build & Push Commands</div>
+          <div class="mono"><span class="c"># Build image locally</span>
+docker build -t flash-sale-system:latest .
+
+<span class="c"># Tag for DockerHub</span>
+docker tag flash-sale-system:latest \
+  yourusername/java-app:latest
+
+<span class="c"># Login and push</span>
+docker login
+docker push yourusername/java-app:latest</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">🔑 DockerHub Credentials in Jenkins</div>
+      <div class="pb">
+        <div style="font-size:11px;color:var(--text2);line-height:1.8;margin-bottom:14px">
+          Manage Jenkins → Credentials → (System) → Global credentials → Add Credentials
+        </div>
+        <table class="info-table">
+          <tr><td>Kind</td><td>Username with password</td></tr>
+          <tr><td>Scope</td><td>Global</td></tr>
+          <tr><td>Username</td><td>your DockerHub username</td></tr>
+          <tr><td>Password</td><td>your DockerHub password</td></tr>
+          <tr><td>ID</td><td><code>dockerhub-creds</code></td></tr>
+          <tr><td>Description</td><td>DockerHub Login</td></tr>
+        </table>
+        <div style="margin-top:14px">
+          <div class="stitle">Jenkins Plugins Required</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-size:12px"><span style="font-family:'JetBrains Mono',monospace;font-weight:700">Docker</span><span style="color:var(--text3);font-size:11px;margin-left:8px">Integrates Jenkins with Docker</span></div>
+            <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-size:12px"><span style="font-family:'JetBrains Mono',monospace;font-weight:700">Docker Pipeline</span><span style="color:var(--text3);font-size:11px;margin-left:8px">Build containers from pipelines</span></div>
+            <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-size:12px"><span style="font-family:'JetBrains Mono',monospace;font-weight:700">Kubernetes CLI</span><span style="color:var(--text3);font-size:11px;margin-left:8px">Configure kubectl for deployments</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel full">
+      <div class="ph">📁 Project File Structure</div>
+      <div class="pb">
+        <div class="mono">flash-sale-system/
+├── <span class="k">k8s/</span>
+│   ├── deployment.yaml             <span class="c"># Kubernetes deployment</span>
+│   └── service.yaml                <span class="c"># Kubernetes service</span>
+├── <span class="k">src/main/java/com/flashsale/</span>
+│   ├── FlashSaleApplication.java
+│   ├── controller/FlashSaleController.java
+│   ├── model/Product.java · Order.java
+│   ├── repository/ProductRepository.java · OrderRepository.java
+│   └── service/FlashSaleService.java    <span class="c"># synchronized placeOrder()</span>
+├── <span class="k">src/main/resources/</span>
+│   ├── application.properties
+│   └── static/index.html               <span class="c">← THIS FILE lives here</span>
+├── <span class="k">src/test/java/com/flashsale/</span>
+│   └── FlashSaleServiceTest.java
+├── Dockerfile
+├── Jenkinsfile
+└── pom.xml</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB 5: KUBERNETES ══ -->
+<div id="tab-k8s" class="tab">
+  <div class="grid2">
+    <div class="panel">
+      <div class="ph">☸️ deployment.yaml</div>
+      <div class="pb">
+        <div class="mono"><span class="k">apiVersion:</span> apps/v1
+<span class="k">kind:</span> Deployment
+<span class="k">metadata:</span>
+  name: java-app
+<span class="k">spec:</span>
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+    spec:
+      containers:
+        - name: java-app
+          image: &lt;dockerhub-username&gt;/java-app:latest
+---
+<span class="k">apiVersion:</span> v1
+<span class="k">kind:</span> Service
+<span class="k">metadata:</span>
+  name: java-service
+<span class="k">spec:</span>
+  type: NodePort
+  selector:
+    app: java-app
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30008</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">🟢 Live Pods — Scale & Update</div>
+      <div class="pb">
+        <div class="pods-grid" id="pods"></div>
+        <button class="btn btn-p" onclick="scalePods(5)">Scale up to 5 pods</button>
+        <button class="btn btn-s" style="margin-top:6px" onclick="scalePods(2)">Scale back to 2</button>
+        <button class="btn btn-b" style="margin-top:6px" onclick="rollingUpdate()">↻ Trigger Rolling Update</button>
+        <div class="rbox" id="k8s-rbox"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">💻 kubectl Commands</div>
+      <div class="pb">
+        <div class="mono"><span class="c"># Apply deployment & service</span>
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+<span class="c"># Verify pods</span>
+kubectl get pods
+<span class="g">java-app-xxxx   1/1   Running</span>
+
+<span class="c"># Verify services</span>
+kubectl get svc
+<span class="g">java-service  NodePort  10.111.227.130  80:30008/TCP</span>
+
+<span class="c"># Scale for Big Billion Day</span>
+kubectl scale deployment java-app --replicas=10</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">📊 Deployment Configuration</div>
+      <div class="pb">
+        <table class="info-table">
+          <tr><td>Replicas</td><td>2 pods</td></tr>
+          <tr><td>Image</td><td>dockerhub-user/java-app:latest</td></tr>
+          <tr><td>Container port</td><td>8080</td></tr>
+          <tr><td>Service type</td><td>NodePort</td></tr>
+          <tr><td>NodePort</td><td>30008</td></tr>
+          <tr><td>External access</td><td>localhost:30008</td></tr>
+          <tr><td>K8s cluster</td><td>Docker Desktop</td></tr>
+          <tr><td>Kubernetes version</td><td>v1.34.1</td></tr>
+        </table>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;font-size:11px;color:var(--green)">
+          ✓ Docker Desktop → Settings → Kubernetes → Enable Kubernetes → Apply & Restart
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let stock=10,orders=0,revenue=0,fails=0;
+const maxStock=10,salePrice=25000;
+
+function showTab(t,btn){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  btn.classList.add('active');
+}
+
+function updateMetrics(){
+  document.getElementById('m-orders').textContent=orders;
+  document.getElementById('m-rev').textContent='₹'+revenue.toLocaleString('en-IN');
+  document.getElementById('m-stock').textContent=stock;
+  document.getElementById('m-fail').textContent=fails;
+  document.getElementById('stk-lbl').textContent=stock+' / '+maxStock+' units';
+  const pct=Math.round((stock/maxStock)*100);
+  document.getElementById('stk-bar').style.width=pct+'%';
+  document.getElementById('stk-bar').style.background=
+    pct>50?'linear-gradient(90deg,var(--brand),var(--brand-lt))':
+    pct>20?'linear-gradient(90deg,var(--amber),#FFCC55)':
+    'linear-gradient(90deg,var(--red),#FF7070)';
+}
+
+function showR(id,msg,cls){
+  const b=document.getElementById(id);
+  b.textContent=msg;b.className='rbox '+cls;b.style.display='block';
+  setTimeout(()=>b.style.display='none',7000);
+}
+
+function addLog(user,qty,ok){
+  const l=document.getElementById('log');
+  if(l.querySelector('[data-empty]'))l.innerHTML='';
+  const li=document.createElement('li');li.className='log-item';
+  const price=ok?'₹'+(salePrice*qty).toLocaleString('en-IN'):'—';
+  const ts=new Date().toLocaleTimeString();
+  li.innerHTML=`<span><strong style="color:var(--text)">${user}</strong><span style="color:var(--text3)"> · qty ${qty} · ${ts}</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:12px">${price}</span><span class="badge ${ok?'bg':'br'}">${ok?'SUCCESS':'REJECTED'}</span>`;
+  l.prepend(li);
+}
+
+function placeOrder(){
+  const user=document.getElementById('uid').value||'user1';
+  const qty=parseInt(document.getElementById('qty').value)||1;
+  const sc=document.getElementById('scenario').value;
+  if(sc==='expired'){fails++;addLog(user,qty,false);showR('rbox','FAILED: Sale window has ended or not started yet.\ntestInactiveSale() → covered in JUnit tests.','fail');updateMetrics();return;}
+  if(sc==='concurrent'){simulateConcurrent(user);return;}
+  if(sc==='exceed'||qty>stock){fails++;addLog(user,qty,false);showR('rbox','FAILED: Insufficient stock. Only '+stock+' unit(s) remaining.\ntestOutOfStock() → synchronized placeOrder() prevents overselling.','fail');updateMetrics();return;}
+  if(stock<=0){fails++;addLog(user,qty,false);showR('rbox','FAILED: Out of stock! All '+maxStock+' units sold during flash sale.','fail');updateMetrics();return;}
+  stock-=qty;orders++;revenue+=salePrice*qty;
+  showR('rbox','SUCCESS! Order confirmed for '+user+'.\nCharged: ₹'+(salePrice*qty).toLocaleString('en-IN')+' at ₹'+salePrice.toLocaleString('en-IN')+'/unit\nStock remaining: '+stock+' units','ok');
+  addLog(user,qty,true);updateMetrics();
+}
+
+function simulateConcurrent(baseUser){
+  const users=['u01','u02','u03','u04','u05','u06','u07','u08','u09','u10'];
+  let success=0;
+  users.forEach((u,i)=>{
+    setTimeout(()=>{
+      if(stock>0){stock--;orders++;revenue+=salePrice;success++;addLog(u,1,true);}
+      else{fails++;addLog(u,1,false);}
+      updateMetrics();
+      if(i===users.length-1)showR('rbox',success+'/10 users succeeded in concurrent scenario.\nsynchronized keyword prevented overselling.\ntestConcurrentHighDemand() → assertEquals('+success+', successCount) ✓','info');
+    },i*180);
+  });
+}
+
+function resetSale(){
+  stock=10;orders=0;revenue=0;fails=0;
+  document.getElementById('log').innerHTML='<li class="log-item" data-empty style="color:var(--text3)">No transactions yet — place an order above.</li>';
+  updateMetrics();showR('rbox','Stock reset to 10 units. Flash sale restarted!','ok');
+}
+
+// JUNIT
+let testsRunning=false;
+function runTests(){
+  if(testsRunning)return;testsRunning=true;
+  for(let i=0;i<6;i++){const e=document.getElementById('t'+i);e.className='ts ts-run';e.textContent='RUNNING';}
+  document.getElementById('t-summary').textContent='Running mvn test...';
+  document.getElementById('t-count').textContent='0 / 6 passed';
+  document.getElementById('t-rbox').style.display='none';
+  document.getElementById('t-bar').style.width='0%';
+  [600,1200,1800,2400,3400,4200].forEach((d,i)=>{
+    setTimeout(()=>{
+      document.getElementById('t'+i).className='ts ts-pass';
+      document.getElementById('t'+i).textContent='PASS';
+      const p=i+1;
+      document.getElementById('t-count').textContent=p+' / 6 passed';
+      document.getElementById('t-bar').style.width=Math.round((p/6)*100)+'%';
+      document.getElementById('t-summary').textContent='Running... '+p+'/6 complete';
+      if(i===5){testsRunning=false;showR('t-rbox','BUILD SUCCESS\nTests run: 6, Failures: 0, Errors: 0, Skipped: 0\nAll scenarios passed including concurrency test (20 threads → 5 succeeded).','ok');document.getElementById('t-summary').textContent='All 6 tests passed ✓';}
+    },d);
+  });
+}
+
+// PIPELINE
+let pipeRunning=false;
+const pipeStages=[
+  {id:'cs0',log:'[Pipeline] stage Clone Repository\n[git] Fetching from https://github.com/your-repo/flash-sale-system.git\n[git] Branch: main · Commit: a3f9c2d\n[Pipeline] Clone complete ✓'},
+  {id:'cs1',log:'[Pipeline] stage Build with Maven\n[INFO] Building flash-sale-system 1.0.0\n[INFO] Compiling 7 source files · javac 17\n[INFO] Running FlashSaleServiceTest\n[INFO] Tests run: 6, Failures: 0\n[INFO] BUILD SUCCESS ✓'},
+  {id:'cs2',log:'[Pipeline] stage Build Docker Image\n[docker] Building flash-sale-system:latest\n[docker] FROM eclipse-temurin:17-jdk\n[docker] COPY target/*.jar app.jar\n[docker] Successfully built abc12345 ✓'},
+  {id:'cs3',log:'[Pipeline] stage Push to DockerHub\n[withCredentials] Using dockerhub-creds\n[docker] Login succeeded\n[docker] Pushing yourusername/java-app:latest\n[docker] Digest: sha256:abc123... ✓'},
+  {id:'cs4',log:'[Pipeline] stage Deploy to Kubernetes\n[kubectl] Applying k8s/deployment.yaml\n[k8s] deployment.apps/java-app configured\n[k8s] service/java-service configured\n[k8s] 2/2 pods running ✓\n\nFinished: SUCCESS 🎉'}
+];
+const pipeLabels=['1/5 — Cloning repository','2/5 — Building with Maven','3/5 — Building Docker image','4/5 — Pushing to DockerHub','5/5 — Deploying to Kubernetes'];
+
+function runPipeline(){
+  if(pipeRunning)return;pipeRunning=true;
+  for(let i=0;i<5;i++){const e=document.getElementById('cs'+i);e.className='ts ts-pend';e.textContent='WAITING';}
+  document.getElementById('pipe-log').textContent='[Pipeline] Triggered by Build Now\n[Pipeline] Starting...\n';
+  document.getElementById('pipe-rbox').style.display='none';
+  document.getElementById('pipe-bar').style.width='0%';document.getElementById('pipe-pct').textContent='0%';
+  pipeStages.forEach((stage,i)=>{
+    const start=i*1400+600;
+    setTimeout(()=>{document.getElementById(stage.id).className='ts ts-run';document.getElementById(stage.id).textContent='RUNNING';document.getElementById('pipe-label').textContent=pipeLabels[i];},start);
+    setTimeout(()=>{
+      document.getElementById(stage.id).className='ts ts-pass';document.getElementById(stage.id).textContent='DONE';
+      const pct=Math.round(((i+1)/5)*100);
+      document.getElementById('pipe-bar').style.width=pct+'%';document.getElementById('pipe-pct').textContent=pct+'%';
+      document.getElementById('pipe-log').textContent+='\n'+stage.log+'\n';
+      if(i===4){pipeRunning=false;showR('pipe-rbox','Pipeline complete! All 5 stages passed.\nApp deployed to Kubernetes — 2 replicas running.\nAccess at: http://localhost:30008','ok');document.getElementById('pipe-label').textContent='Pipeline complete ✓';}
+    },start+1100);
+  });
+}
+
+function resetPipeline(){
+  if(pipeRunning)return;
+  for(let i=0;i<5;i++){const e=document.getElementById('cs'+i);e.className='ts ts-pend';e.textContent='WAITING';}
+  document.getElementById('pipe-bar').style.width='0%';document.getElementById('pipe-pct').textContent='0%';
+  document.getElementById('pipe-label').textContent='Click trigger to start pipeline';
+  document.getElementById('pipe-log').textContent='Waiting for pipeline trigger...';
+  document.getElementById('pipe-rbox').style.display='none';
+}
+
+// KUBERNETES
+function renderPods(n){
+  const c=document.getElementById('pods');c.innerHTML='';
+  for(let i=1;i<=n;i++){
+    const d=document.createElement('div');d.className='k8s-pod';d.id='pod-'+i;
+    d.innerHTML='<span class="pod-dot pulse"></span>java-app-pod-'+String(i).padStart(3,'0');
+    c.appendChild(d);
+  }
+}
+function scalePods(n){
+  renderPods(n);
+  showR('k8s-rbox','Scaled to '+n+' replicas.\nkubectl scale deployment java-app --replicas='+n,'ok');
+}
+function rollingUpdate(){
+  const pods=document.querySelectorAll('.k8s-pod');
+  pods.forEach((p,i)=>{
+    const name='java-app-pod-'+String(i+1).padStart(3,'0');
+    setTimeout(()=>{
+      p.classList.add('updating');p.innerHTML='<span class="pod-dot amber"></span>'+name+' · Updating...';
+      setTimeout(()=>{p.classList.remove('updating');p.classList.add('done');p.innerHTML='<span class="pod-dot pulse"></span>'+name+' · v2 Running';},1000);
+    },i*1200);
+  });
+  showR('k8s-rbox','Rolling update started — pods updated one at a time.\nZero downtime maintained. New image: java-app:latest','info');
+}
+renderPods(2);
+
+// COUNTDOWN
+let secs=9900;
+setInterval(()=>{
+  secs--;if(secs<0)secs=9900;
+  const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+  document.getElementById('timer').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+},1000);
+
+updateMetrics();
+</script>
+</body>
+</html>
